@@ -1,0 +1,4 @@
+# Authors #
+###########
+/app/maat/authors/*
+!/app/maat/authors/authorname.json

@@ -1,0 +1,38 @@
+{
+	"add_assets": "add assets (click)",
+	"busy_1": "loading …",
+	"busy_2": "you may take a short break …",
+	"cancel": "cancel",
+	"code": "en",
+	"edit": "edit",
+	"index": "index",
+	"log_out": "log out",
+	"new_entry": "new entry",
+	"password": "Password",
+	"publish": "publish",
+	"replace_with": "replace with (click)",
+	"error": {
+		"browser": "Try the latest version of Chrome or Firefox as Browser.",
+		"exists_1": "Sorry, a file named “",
+		"exists_2": "” already exists; try a different name.",
+		"error": "Sorry, something seems to be broken; now would be a good time to contact your curator.",
+		"failure": "Probably your network connection is interrupted or your destination server is currently not available. In case of the latter, take a short break and try again later.",
+		"js": "Activate JavaScript in your browser preferences and reload this page (⌘R).",
+		"reboot": "Please restart your browser before you log&nbsp;in&nbsp;again.",
+		"upload_ext_1": "Sorry, uploading the file “",
+		"upload_ext_2": "” isn’t practicable; ",
+		"upload_ext_3": " and ",
+		"upload_ext_4": " file extensions are valid only.",
+		"upload_size_1": "Sorry, the file “",
+		"upload_size_2": "” is too large – per file at most "
+	},
+	"confirm": {
+		"expired": "You’re no more signed in; please log in again.",
+		"expired_unsaved": "You’re no more signed in; are you sure you want to discard all changes before you log in again?",
+		"unsaved": "Some changes haven’t been published yet; are you sure you want to discard all changes?",
+		"remove_asset_1": "Are you sure you want to permanently delete the asset “",
+		"remove_asset_2": "” from entry ”",
+		"remove_entry_1": "Are you sure you want to permanently delete the entry “",
+		"remove_end": "”?"
+	}
+}

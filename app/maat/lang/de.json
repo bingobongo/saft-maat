@@ -1,0 +1,38 @@
+{
+	"add_assets": "erweiterungen anfügen (klick)",
+	"busy_1": "lädt …",
+	"busy_2": "gönnen Sie sich eine kurze Pause …",
+	"cancel": "abbrechen",
+	"code": "de",
+	"edit": "bearbeiten",
+	"index": "index",
+	"log_out": "abmelden",
+	"new_entry": "neuer eintrag",
+	"password": "Passwort",
+	"publish": "publizieren",
+	"replace_with": "ersetzen durch (klick)",
+	"error": {
+		"browser": "Versuch die aktuellste Version von Chrome oder Firefox als Browser.",
+		"exists_1": "Eine Datei mit dem Namen „",
+		"exists_2": "“ existiert bereits; versuchen Sie einfach eine Abwandlung davon.",
+		"error": "Etwas läuft hier leider mächtig falsch; möglicherweise kann Ihnen Ihr Kurator weiterhelfen.",
+		"failure": "Vermutlich ist Ihre Netzwerkverbindung unterbrochen oder Ihr Ziel-Server ist momentan nicht erreichbar. In letzterem Falle versuchen Sie es einfach später noch einmal.",
+		"js": "Aktiviere JavaScript in den Browser-Einstellungen und lade die Seite neu (⌘R).",
+		"reboot": "Bitte starte den Browser neu um dich erneut anzumelden.",
+		"upload_ext_1": "Die Datei „",
+		"upload_ext_2": "“ kann leider nicht angefügt werden; es sind auschließlich ",
+		"upload_ext_3": " und ",
+		"upload_ext_4": " Dateierweiterungen erlaubt.",
+		"upload_size_1": "Die Datei „",
+		"upload_size_2": "“ ist leider zu groß – pro Datei maximal "
+	},
+	"confirm": {
+		"expired": "Sie sind nicht mehr angemeldet; bitte melden Sie sich erneut an.",
+		"expired_unsaved": "Sie sind nicht mehr angemeldet; soll diese Version tatsächlich verworfen werden bevor Sie sich erneut anmelden?",
+		"unsaved": "Der Eintrag wurde noch nicht publiziert; soll diese Version tatsächlich verworfen werden?",
+		"remove_asset_1": "Soll die Erweiterung „",
+		"remove_asset_2": "“ von Eintrag „",
+		"remove_entry_1": "Soll der Eintrag „",
+		"remove_end": "“ tatsächlich unwiderrufbar gelöscht werden?"
+	}
+}
