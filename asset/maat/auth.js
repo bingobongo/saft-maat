@@ -3,7 +3,7 @@
 // @return	number
 
 String.prototype.startsWith = function(str){
-	return this.indexOf(str) === 0;						// “.indexOf()” is case sensitive
+	return this.indexOf(str) === 0;			// .indexOf() is case sensitive
 };
 
 
@@ -244,8 +244,8 @@ var auth = {
 		this.setup();
 		this.disable();
 		this.section.appendChild(this.form);
-		this.deAuth('null');							// jump between authors, let it work back and forth without restart
-	},
+		this.deAuth('null');				// jump between authors, let it work
+	},										//    back and forth without restart
 
 	addExit: function(){
 		window.addEvent('exit', this.cacheSection.bind(this));
@@ -312,8 +312,11 @@ var auth = {
 		this.fd = new FormData();
 		this.fd.append('auth', '');
 
-		xhr.onload = this.onLoad.bind(this);			// function “bind” (JavaScript 1.8.5), supported since
-		xhr.onerror = this.onError.bind(this);			//    Chrome 7, Firefox 4, IE 9, but not Safari 5 nor Opera 11 yet
+		// function bind() (JavaScript 1.8.5); since Chrome 7,
+		//    Firefox 4, IE 9, not Safari 5 nor Opera 11 yet
+
+		xhr.onload = this.onLoad.bind(this);
+		xhr.onerror = this.onError.bind(this);
 		xhr.onabort = this.onAbort.bind(this);
 
 		this.buildForm();
@@ -348,8 +351,8 @@ var auth = {
 		this.password.value = '';
 		this.form.appendChild(this.password);
 		this.form.appendChild(this.submit);
-		this.password.focus();							// Firefox 4
-		window.scrollTo(0,window.pageYOffset*2);		// Firefox 4
+		this.password.focus();				// Firefox 4, current + next line
+		window.scrollTo(0, window.pageYOffset * 2);
 	},
 
 	// @param	string
@@ -417,8 +420,8 @@ var auth = {
 			} else {
 				self.location.href = this.baseURL + window.location.pathname.substr(this.baseURI.length);
 			}
-
-		} else if (typeof(this.cache) === 'object'){	// logged out successfully
+											// logged out successfully
+		} else if (typeof(this.cache) === 'object'){
 			localStorage.clear();
 			Object.each(this.cache, function(value, key){
 				delete this.key;
@@ -429,8 +432,8 @@ var auth = {
 			this.password.focus();
 
 		} else if (this.xhr.getResponseHeader('X-Maat-Reset')){
-			this.deAuth('null');						// reset after failed login, let it work once again (Firefox 4)
-
+			this.deAuth('null');			// reset after failed login, let it
+											//    work once again (Firefox 4)
 		} else {
 			this.enable();
 		}

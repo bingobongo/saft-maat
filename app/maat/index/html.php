@@ -9,8 +9,8 @@ Class Html extends Index {
 		parent::__construct();
 	}
 
-
-	protected function __build(&$entries, $lastmod){	# $lastmod is superfluous for indexes
+											# $lastmod superfluous for indexes
+	protected function __build(&$entries, $lastmod){
 		$title = ucfirst(App::$author) . ': ' . htmlspecialchars(App::TITLE, ENT_QUOTES, 'utf-8', false);
 
 		echo '<!doctype html>
@@ -25,9 +25,12 @@ Class Html extends Index {
 <body class=index data-mod=' , $lastmod , '>
 	<section id=index>';
 
+		# bit lower memory peak than "foreach (array_keys() as $path){"
+		#    (gains with array size)
+
 		if (empty($entries) === false){
-			$size = sizeof($entries) + 1;				# bit lower memory peak (gains with array size) than
-			$r = 0;										#    “foreach (array_keys($entries) as $entryPath){” attempt
+			$size = sizeof($entries) + 1;
+			$r = 0;
 			$realToday = Elf::getCurrentDate();
 
 			while (--$size){
@@ -47,7 +50,7 @@ Class Html extends Index {
 		<article' , $dataStr , $dataAssetStr , intval(basename($entryPath)) > $realToday ? ' class=scheduled' : '' , '>
 			<a href=/' ,  Elf::entryPathToURLi($entryPath, true) , '><span class=turn></span>' , Elf::avoidWidow(Elf::getEntryTitle($entryPath)) , '<span class=remove> ✖</span>' , $assetSize , '</a> 
 		</article>';
-			}											# ✏ ✐ ✎ ✖
+			}
 
 			unset($assetSize, $dataAssetStr, $dataStr, $entryPath, $p);
 		}
@@ -109,11 +112,11 @@ Class Html extends Index {
 	# @param	string
 	# @return	string
 	#
-	#			Maat[, in contrast to Saft,] will only count in the assets that
-	#				are in the same directory as the entry itself in order to
-	#					- accelerate the output of the index pages and to
-	#					- simplify the client-side asset URI creation; anyway
-	#				it makes little sense to throw assets into multiple directories.
+	#			Maat[, in contrast to Saft,] only counts in assets that
+	#			    are in the same directory as entry itself in order to
+	#			    - accelerate the output of index pages and to
+	#			    - simplify client-side asset URI creation; anyway, it makes
+	#			    little sense to throw assets into multiple directories
 
 	private function __getAssetNums(&$entryPath){
 		$assets = Pilot::getEntries(substr($entryPath, 0, strrpos($entryPath, '/')), $regexB = '{

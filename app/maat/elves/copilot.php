@@ -91,7 +91,10 @@ Class Copilot extends Pilot {
 	protected function __setRoute(&$params, &$page, &$rw, &$size){
 
 		switch ($page){
-			case null:									# html root (page 1)
+			case null:
+
+				# html root (page 1)
+
 				$this->__initialize('index');
 				break;
 
@@ -104,7 +107,9 @@ Class Copilot extends Pilot {
 				$this->__initialize('index');
 				break;
 		}
-														# 404 not found
+
+		# 404 not found
+
 		Elf::sendExit(404, 'The requested URL ' . $_SERVER['REQUEST_URI'] . ' was not found on this server.');
 	}
 
@@ -116,11 +121,14 @@ Class Copilot extends Pilot {
 
 		if (empty($assets) === false){
 			$str = '';
-														# bit higher memory peak (grows with array size, negligible here)
-			foreach ($assets as $name){					#    than sizeof-while-round-next-key attempt
-				$n = strrpos($name, ' ') + 1;
-				$n = substr($name, $n);					# or without file extension:
-														#    “substr($path, $n, strrpos($path, '.') - $n)” instead
+
+			# bit higher memory peak than sizeof-while-round-next-key
+			#    (grows with array size, negligible here)
+
+			foreach ($assets as $name){
+				$n = strrpos($name, ' ') +1;
+				$n = substr($name, $n);		# without file extension this would be
+											# substr($name,$n,strrpos($name,'.')-$n)
 				$str.= $str === ''
 					? ' data-asset=' . $n
 					: '|' . $n;

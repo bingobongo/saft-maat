@@ -18,14 +18,14 @@ Class Colonel extends History {
 		if (	preg_match('{^[\w/-]+\s[\w-]+\.(?:' . App::FILE_EXT . ')$}i', $_REQUEST['entry']) === 1
 			xor	(	empty($_REQUEST['entry']) === true
 				&&	$_REQUEST['from'] === 'publish-entry'
-				)										# new entry
+				)							# new entry
 		){
 			parent::__construct();
 			$from = $_REQUEST['from'];
 
 			if (	empty($_REQUEST['entry']) === false
 				&&	is_writable(self::$entryPath) === false
-			)											# non-existent entry nor new one
+			)								# non-existent entry nor new one
 				$this->__abort();
 
 
@@ -56,7 +56,7 @@ Class Colonel extends History {
 			$this->__abort();
 
 		Elf::sendExitHeader(200, 'text/plain');
-		echo self::$dump;								# output asynchronous dump
+		echo self::$dump;					# output asynchronous dump
 	}
 
 
@@ -91,7 +91,7 @@ Class Colonel extends History {
 
 		$this->__createEntry($newEntryPath, $fileExt);
 
-		$dataAssetStr = self::$dump;					# from “__addAssets”
+		$dataAssetStr = self::$dump;		# from __addAssets
 
 		self::$dump = '{
 	"article": "article[data-ext='
@@ -120,7 +120,7 @@ Class Colonel extends History {
 
 
 	# @param	integer
-	# @return	string	dot file extension, e.g. “.txt”
+	# @return	string	dot file extension, e.g. ".txt"
 
 	private function __checkEntryContent($new){
 
@@ -128,10 +128,12 @@ Class Colonel extends History {
 
 			if (empty($_REQUEST['content']) === true){
 
-				if (	$new === 1						# new entry or old entry and text filetype
+				# new entry or old entry and text filetype
+
+				if (	$new === 1
 					xor	Elf::getFiletype(basename(self::$entryPath)) === 'text'
-				)										# entry content missing
-					$this->__abort();
+				)
+					$this->__abort();		# entry content missing
 
 				$fileExt = '.' . Elf::getFileExt(basename(self::$entryPath));
 
@@ -141,13 +143,13 @@ Class Colonel extends History {
 		} else {
 
 			if (($fileExt = $this->__isValidFile($_FILES['100'])) === 0)
-				$this->__abort();						# entry content invalid
+				$this->__abort();			# entry content invalid
 		}
 
 		if ($new === 0){
 			$this->__updateHistoriography();
-			$this->__getAssets();						# fetch assets ere the path changes in case of history is off
-		}
+			$this->__getAssets();			# fetch assets ere the path changes
+		}									#    in case of history is off
 
 		return $fileExt;
 	}
@@ -185,7 +187,9 @@ Class Colonel extends History {
 
 	private function __adaptEntry($newEntryPath, $fileExt){
 
-		if (self::$assets !== 1){						# remove assets (“1” = no assets, function “__getAssets”)
+		# remove assets (1 = no assets, function __getAssets)
+
+		if (self::$assets !== 1){
 			$assets = array_flip(self::$assets);
 			$newAssets = isset($_REQUEST['data-asset']) === true
 				? explode('|', $_REQUEST['data-asset'])
@@ -204,12 +208,16 @@ Class Colonel extends History {
 
 			unset($assetPath, $IDstr, $newAssets);
 
+			# prevent from seeking multiple times, 1 = no assets
+
 			self::$assets = empty($assets) === true
-				? 1										# prevent from seeking multiple times (“1” = no assets)
+				? 1
 				: array_flip($assets);
 		}
 
-		if (self::$entryPath === $newEntryPath){		# same entry filename and extension
+		# same entry filename and extension
+
+		if (self::$entryPath === $newEntryPath){
 
 			if (	Elf::getFiletype($newEntryPath) === 'text'
 				&&	empty($_REQUEST['content']) === false
@@ -225,7 +233,9 @@ Class Colonel extends History {
 				}
 			}
 
-		} else {										# different entry filename and/or extension
+		# different entry filename and/or extension
+
+		} else {
 			$this->__incrementPermalink($newEntryPath, $fileExt);
 
 			if (	Elf::getFiletype($newEntryPath) === 'text'
@@ -248,18 +258,21 @@ Class Colonel extends History {
 
 					unset($_FILES['100']);
 
-				} else										# keep old entry file alive on failure
+				# keep old entry file alive on failure
+
+				} else
 					rename(self::$entryPath, $newEntryPath);
 			}
 
 			chmod($newEntryPath, App::$perms['asset_parts']);
 
-															# different entry filename; therefore,
+			# different entry filename => rename assets, rebuild array
+
 			if (Elf::cutFileExt(self::$entryPath) !== Elf::cutFileExt($newEntryPath)){
 
-				if (empty($assets) === false){					# rename assets,
+				if (empty($assets) === false){
 					$filenamePart = basename($newEntryPath, $fileExt);
-					self::$assets = array();					# rebuild array
+					self::$assets = array();
 
 					foreach ($assets as $assetPath){
 						$newAssetPath = substr($assetPath, 0, strrpos($assetPath, '/') + 1)
@@ -270,7 +283,7 @@ Class Colonel extends History {
 				}
 
 				unset($assetPath, $newAssetPath);
-																# and update path of historiography
+
 				$this->__updateHistoriographyPath($newEntryPath);
 			}
 
@@ -332,7 +345,9 @@ Class Colonel extends History {
 
 	private function __removeAsset(){
 
-		if (	empty($_REQUEST['asset']) === true		# no entry asset or entry and asset don’t match
+		# no entry asset or entry and asset do not match
+
+		if (	empty($_REQUEST['asset']) === true
 			or	preg_replace('{.*(\d{4}\d{2}\d{2}\s[\w-]+).*}i', '$1', self::$entryPath) !== preg_replace('{.*(\d{4}\d{2}\d{2}\s[\w-]+).*}i', '$1', $_REQUEST['asset'])
 		)
 			$this->__abort();
@@ -352,8 +367,11 @@ Class Colonel extends History {
 		$this->__getAssets();
 
 		if (self::$assets !== 1){
-														# bit higher memory peak (grows with array size, negligible here)
-			foreach (array_keys(self::$assets) as $path){	#      than sizeof-while-round-next-key attempt
+
+			# bit higher memory peak than sizeof-while-round-next-key
+			#    (grows with array size, negligible here)
+
+			foreach (array_keys(self::$assets) as $path){
 
 				if (is_writable($path) === true)
 					continue;
@@ -388,7 +406,7 @@ Class Colonel extends History {
 
 		if ($_REQUEST['from'] === 'add-assets'){
 
-			if (empty($_FILES) === true)				# no entry assets
+			if (empty($_FILES) === true)	# no entry assets
 				return;
 
 			$this->__updateHistoriography();
@@ -396,8 +414,11 @@ Class Colonel extends History {
 
 		$pathPart = Elf::cutFileExt(self::$entryPath) . ' ';
 		$takenIDstr = $this->__getTakenAssetIDs();
-														# bit higher memory peak (grows with array size, negligible here)
-		foreach (array_keys($_FILES) as $ID){			#     than sizeof-while-round-next-key attempt
+
+		# bit higher memory peak than sizeof-while-round-next-key
+		#    (grows with array size, negligible here)
+
+		foreach (array_keys($_FILES) as $ID){
 			$file = $_FILES[$ID];
 
 			if (($fileExt = $this->__isValidFile($file)) === 0 or $ID === '100')
@@ -407,7 +428,7 @@ Class Colonel extends History {
 
 			if (	strpos($takenIDstr, '|' . $ID . '|') !== false
 				or	file_exists($assetPath) === true
-			){											# seek for lowest free ID
+			){								# seek for lowest free ID
 				$ID = 1;
 				while (strpos($takenIDstr, '|' . $ID . '|') !== false)
 					++$ID;
@@ -418,7 +439,7 @@ Class Colonel extends History {
 			if (move_uploaded_file($file['tmp_name'], $assetPath)){
 				chmod($assetPath, App::$perms['asset_parts']);
 
-				$takenIDstr.= $ID . '|';				# keep taken ID string up to date
+				$takenIDstr.= $ID . '|';	# keep taken ID string up to date
 				$IDstr.= $IDstr === ''
 					? $ID . $fileExt
 					: '|' . $ID . $fileExt;
@@ -480,7 +501,8 @@ Class Colonel extends History {
 
 	# @param	string
 	# @param	string
-	# @return	integer	will check MIME type twice; the transferred one and the one that the FILEINFO extension will return
+	# @return	integer	will check MIME type twice; the transferred one
+	#					and the one that the FILEINFO extension will return
 
 	private function __isValidMimeType($path, $mimeType){
 
@@ -490,7 +512,8 @@ Class Colonel extends History {
 		$finfo = finfo_open(FILEINFO_MIME_TYPE);
 		$mimeType = finfo_file($finfo, $path);
 		finfo_close($finfo);
-														# “|application/octet-stream” for hosts that don’t know “video/webm”
+
+		# "|application/octet-stream" for hosts that do not know video/webm
 		return preg_match('{^(?:image/(?:gif|jpeg|png|webp)|text/plain|video/webm|application/octet-stream)$}i', $mimeType) === 0
 			? 0
 			: 1;

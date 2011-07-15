@@ -51,7 +51,7 @@ Element.implement({
 // @return	number
 
 String.prototype.startsWith = function(str){
-	return this.indexOf(str) === 0;						// “.indexOf()” is case sensitive
+	return this.indexOf(str) === 0;			// .indexOf() is case sensitive
 };
 
 
@@ -62,14 +62,14 @@ String.prototype.ucfirst = function(){
 };
 
 
-// @return	string	cut file extension inclusive “.” off
+// @return	string	cut file extension inclusive dot (.) off
 
 String.prototype.cutFileExt = function(){
 	return this.substring(0, this.lastIndexOf('.'));
 };
 
 
-// @return	string	get file extension or at least the digits behind “.”
+// @return	string	get file extension or at least the digits behind dot (.)
 
 String.prototype.getFileExt = function(){
 	return this.substring(this.lastIndexOf('.') + 1).toLowerCase();
@@ -203,7 +203,7 @@ var flimflam = function(page, total, path){
 
 		if (i === page){
 			span = document.createElement('span');
-			span.innerHTML = i;							// html: &nbsp; or &#160; unicode: \U00A0
+			span.innerHTML = i;				// html: &nbsp; or &#160; unicode: \U00A0
 			f.appendChild(span);
 			f.appendChild(document.createTextNode(' '));
 
@@ -236,7 +236,7 @@ var app = {
 				entry.initialize(pageType);
 				assets.initialize();
 				addAssets.initialize();
-				entries.initialize(pageType);			// init after assets!
+				entries.initialize(pageType);	// init after assets!
 				upload.initialize();
 				progress.initialize();
 				remove.initialize();
@@ -308,12 +308,12 @@ var	keyboard = {
 
 		if (this.cache.ctrl){
 
-			if (e !== 83){								// s
+			if (e !== 83){					// s
 				return null;
 			}
 
-		} else if (	e !== 17							// ctrl
-				&&	e !== 27							// esc
+		} else if (	e !== 17				// ctrl
+				&&	e !== 27				// esc
 				&&	(el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')
 				&&	el.placeholder
 		){
@@ -324,10 +324,10 @@ var	keyboard = {
 			return null;
 		}
 
-		switch (e){					// keycode table, http://unixpapa.com/js/key.html
+		switch (e){		// keycode table, http://unixpapa.com/js/key.html
 			case 17:
-				this.cache.ctrl = e;					// ctrl, but on a Mac + Opera it’d be “0” and “17” ’d be cmd
-				break;
+				this.cache.ctrl = e;		// ctrl, but on a Mac + Opera
+				break;						//    it would be 0 and 17 cmd
 			case 0:
 			case 16:
 			case 18:
@@ -337,9 +337,9 @@ var	keyboard = {
 			case 219:
 			case 220:
 			case 224:
-				this.cache.key = e;						// command, branded keys
+				this.cache.key = e;			// command, branded keys
 				break;
-			case 27:									// esc
+			case 27:						// esc
 
 				if ($('entry')){
 
@@ -357,7 +357,7 @@ var	keyboard = {
 
 				document.activeElement.blur();
 				break;
-			case 68:									// d
+			case 68:						// d
 
 				if (el.tagName !== 'A'){
 					break;
@@ -387,54 +387,54 @@ var	keyboard = {
 				}
 
 				break;
-			case 72:									// h
+			case 72:						// h
 				this.prevNext('prev');
 				break;
-			case 73:									// i
+			case 73:						// i
 				this.redirect($('home'));
 				break;
-			case 74:									// j
+			case 74:						// j
 
 				if (this.pageType === 'index'){
 					entries.shiftFocus(1);
 				}
 
 				break;
-			case 75:									// k
+			case 75:						// k
 
 				if (this.pageType === 'index'){
 					entries.shiftFocus(-1);
 				}
 
 				break;
-			case 76:									// l
+			case 76:						// l
 				this.prevNext('next');
 				break;
-			case 78:									// n
+			case 78:						// n
 
 				if (this.pageType === 'index' || this.pageType === 'permalink'){
 					entry.toggle();
 				}
 
 				break;
-			case 79:									// o
+			case 79:						// o
 				this.redirect(document.activeElement);
 				break;
-			case 80:									// p
+			case 80:						// p
 
 				if (!$('entry')){
 					entries.storage.redirect();
 				}
 
 				break;
-			case 81:									// q
+			case 81:						// q
 
 				if (!$('entry')){
 					app.exit();
 				}
 
 				break;
-			case 83:									// s
+			case 83:						// s
 
 				if (	this.cache.ctrl
 					&&	$('entry')
@@ -443,28 +443,28 @@ var	keyboard = {
 				}
 
 				break;
-			case 84:									// t
+			case 84:						// t
 
 				if ($('index')){
 					el = el.getFirst('> .turn') || document.body.getElement('#active > a > .turn');
 
 					if (el){
 						window.fireEvent('entries.turn', el);
-						entries.shiftFocus();				// re-focus on entry in case of previous focused asset
-					}
+						entries.shiftFocus();	// re-focus on entry in case
+					}							//    of previous focused asset
 				}
 
 				break;
 		}
 	},
 
-	onKeyup: function(e){			// keycode table, http://unixpapa.com/js/key.html
+	onKeyup: function(e){	// keycode table, http://unixpapa.com/js/key.html
 		e = e.event.keyCode;
 
 		switch (e){
 			case 17:
-				delete this.cache.ctrl;					// ctrl, but on a Mac + Opera it’d be “0” and “17” ’d be cmd
-				break;
+				delete this.cache.ctrl;		// ctrl, but on a Mac + Opera
+				break;						//    it would be 0 and 17 cmd
 			case 0:
 			case 16:
 			case 18:
@@ -474,7 +474,7 @@ var	keyboard = {
 			case 219:
 			case 220:
 			case 224:
-				delete this.cache.key;					// command, branded keys
+				delete this.cache.key;		// command, branded keys
 				break;
 		}
 	},
@@ -647,7 +647,9 @@ var entry = {
 			this.cache.paginate.dispose();
 		}
 
-		window.scrollTo(0,0);							// otherwise, Chrome will act up on video element
+		window.scrollTo(0,0);
+
+		// otherwise, Chrome will act up on video element
 		this.article.style.backgroundColor = 'transparent';
 	},
 
@@ -813,7 +815,7 @@ var entry = {
 						+ ' ' + file.name.getFileExt(),
 					l = localAssets.length + 1;
 
-				while (--l){							// remove as local asset
+				while (--l){				// remove as local asset
 
 					if (localAssets[l - 1].childNodes[0].get('text') == str){
 						assets.asset = localAssets[l - 1];
@@ -823,7 +825,7 @@ var entry = {
 				}
 			}
 
-			this.cache.fileList['100'] = file;			// add as local entry
+			this.cache.fileList['100'] = file;	// add as local entry
 			this.cache.fileArr['100'] = file.name + file.size + file.type;
 			this.article.setData('ext', file.name.getFileExt());
 			return file;
@@ -859,7 +861,7 @@ var entry = {
 		var	assetStr = this.assetStr,
 			filename = file.name,
 			id = filename.cutFileExt().substr(filename.lastIndexOf(' ') + 1);
-														// try to keep asset-ID
+											// try to keep asset-ID
 		if (!filename.isAsset() | assetStr.indexOf('|' + id + '|') !== -1){
 			id = 1;
 
@@ -1021,7 +1023,9 @@ var entries = {
 		this.storage.restore();
 
 		window.addEvents({
-			'assets.focus': this.onFocus.bind(this),	// reset lastly, don’t focus on others’ asset wrongly
+
+			// reset lastly, do not focus on others asset wrongly
+			'assets.focus': this.onFocus.bind(this),
 
 			'publish-entry.success': this.add.bind(this),
 			'remove-entry.success': this.remove.bind(this)
@@ -1037,17 +1041,17 @@ var entries = {
 			alert(lang.busy2.ucfirst());
 
 		} else if (classname && tagname === 'SPAN'){
-			e.preventDefault();
-			this.entry = e.target.getParent('a');		// remember to remove
+			e.preventDefault();				// remember to remove
+			this.entry = e.target.getParent('a');
 
-			if (classname === 'turn'){					// reset lastly, don’t focus on others’ asset wrongly
-				this.lastlyAsset = null;
+			if (classname === 'turn'){		// reset lastly, do not focus
+				this.lastlyAsset = null;	//    on others asset wrongly
 			}
 
 			window.fireEvent('entries.' + classname, e.target);
 
-		} else {										// else: let event propagate to parent element
-			this.storage.store();
+		} else {							// else: let event propagate
+			this.storage.store();			//    to parent element
 		}
 	},
 
@@ -1090,7 +1094,7 @@ var entries = {
 		}
 	},
 
-	// @param	number	“-1” = prev, “1” = next, “undefined” = re-focus
+	// @param	number	-1 = prev, 1 = next, undefined = re-focus
 
 	shiftFocus: function(n){
 		var	current = this.lastly;
@@ -1100,7 +1104,7 @@ var entries = {
 			return null;
 		}
 
-		if (current < this.lastly){						// = last asset, focus on next entry
+		if (current < this.lastly){			// = last asset, focus on next entry
 			current = this.lastly < this.entries.length
 				? this.lastly
 				: 0;
@@ -1109,7 +1113,7 @@ var entries = {
 
 		if (current === null){
 
-			if (n === undefined){						// nothing to re-focus
+			if (n === undefined){			// nothing to re-focus
 				return null;
 			}
 
@@ -1118,7 +1122,7 @@ var entries = {
 				: this.entries.length - 1;
 
 		} else if (document.activeElement !== this.entries[current]){
-			current = current;							// re-focus on lastly focused item
+			current = current;				// re-focus on lastly focused item
 
 		} else if (n !== undefined){
 
@@ -1136,7 +1140,7 @@ var entries = {
 				current+= n;
 			}
 
-		} else {										// nothing to (re-)focus
+		} else {							// nothing to (re-)focus
 			return null;
 		}
 
@@ -1146,7 +1150,9 @@ var entries = {
 		this.entries[current].focus();
 	},
 
-	shiftFocusAssets: function(n){						// move this function to the assets object later, maybe
+	// move shiftFocusAssets to the assets object later, maybe
+
+	shiftFocusAssets: function(n){
 		var	active,
 			assets,
 			current = this.lastly,
@@ -1165,7 +1171,7 @@ var entries = {
 
 		if (	currentAsset !== null
 			&&	focused !== assets[currentAsset]
-		){												// re-focus on lastly focused item
+		){									// re-focus on lastly focused item
 			this.tab = null;
 			assets[currentAsset].focus();
 			return true;
@@ -1173,21 +1179,21 @@ var entries = {
 
 		if (n === 1){
 
-			if (i === assets.length - 1){				// = last asset, focus on next entry
+			if (i === assets.length - 1){	// = last asset, focus on next entry
 				++this.lastly;
 				return false;
 			}
 
 			if (	active === this.entries[current]
 				&&	focused === this.entries[current]
-			){											// = current entry, focus on first asset
-				this.tab = null;
+			){								// = current entry,
+				this.tab = null;			//   focus on first asset
 				assets[0].focus();
 				this.lastlyAsset = 0;
 				return true;
 			}
 
-			if (focused.parentNode === div){			// = , next asset
+			if (focused.parentNode === div){// = , next asset
 				this.tab = null;
 				assets[++i].focus();
 				this.lastlyAsset = i;
@@ -1197,13 +1203,13 @@ var entries = {
 
 		if (n === -1){
 
-			if (i === 0){								// = first asset, focus on current entry
-				return false;
+			if (i === 0){					// = first asset,
+				return false;				//   focus on current entry
 			}
 
 			if (	i === -1
 				&&	current === this.entries.indexOf(active) + 1
-			){											// = next entry, focus on last asset
+			){								// = next entry, focus on last asset
 				this.tab = null;
 				assets[assets.length - 1].focus();
 				--this.lastly;
@@ -1213,7 +1219,7 @@ var entries = {
 
 			if (	current === 0
 				&&	this.entries.indexOf(active) === this.entries.length - 1
-			){											// = first entry, focus on last asset
+			){								// = first entry, focus on last asset
 				this.tab = null;
 				assets[assets.length - 1].focus();
 				this.lastly = this.entries.length - 1;
@@ -1221,7 +1227,7 @@ var entries = {
 				return true;
 			}
 
-			if (focused.parentNode === div){			// = , prev asset
+			if (focused.parentNode === div){// = , prev asset
 				this.tab = null;
 				assets[--i].focus();
 				this.lastlyAsset = i;
@@ -1268,9 +1274,9 @@ var entries = {
 					window.fireEvent('entries.turn', entries.entries[cache.active].getFirst('> .turn'));
 				}
 
-				if (	cache.lastly !== null			// no unwanted re-focus
-					&&	cache.lastly >= 0				// “ >= 0” because “0” = valid index number
-				){
+				if (	cache.lastly!== null// no unwanted re-focus
+					&&	cache.lastly >= 0	// " >= 0" because 0 = valid
+				){							//    index number
 					entries.lastly = cache.lastly;
 					entries.lastlyAsset = cache.lastlyAsset;
 					entries.shiftFocus();
@@ -1329,7 +1335,7 @@ var assets = {
 
 		} else if (classname && tagname === 'SPAN'){
 			e.preventDefault().stopPropagation();
-			this.asset = e.target.parentNode;			// remember to remove
+			this.asset = e.target.parentNode;	// remember to remove
 
 			if (this.entry){
 				this.removeAsset();
@@ -1337,8 +1343,8 @@ var assets = {
 			} else {
 				window.fireEvent('assets.' + classname, e.target);
 			}
-		}												// else: let event propagate to parent element
-	},
+		}									// else: let event propagate
+	},										//    to parent element
 
 	onFocus: function(e){
 		window.fireEvent('assets.focus', e);
@@ -1358,7 +1364,7 @@ var assets = {
 		if (	entry
 			&&	assets
 		){
-			this.entry = null;							// no more entry edit mode
+			this.entry = null;				// no more entry edit mode
 			window.fireEvent('assets.dispose');
 
 		} else if (active){
@@ -1381,7 +1387,7 @@ var assets = {
 	build: function(target){
 
 		if (target.nodeName === 'ARTICLE'){
-			this.entry = 1;								// entry edit mode
+			this.entry = 1;					// entry edit mode
 			this.article = target;
 			this.assetURIpart = target.getData('asset-uri') + self.location.pathname.toAssetNamePart();
 
@@ -1434,8 +1440,12 @@ var assets = {
 
 	appendAsset: function(item){
 		var	arr = item.split('.'),
-			a = new Element('a', {						// “0” = tabbing flow of document, < than “0” = priority;
-				tabIndex: 0,							// “-1” = can’t be tabbed to, but focused via JavaScript
+			a = new Element('a', {
+
+				// 0 = tabbing flow of document, < than 0 = priority;
+				// -1 = cannot be tabbed to, but focused via JavaScript
+
+				tabIndex: 0,
 				target: '_blank',
 				href: this.assetURIpart + ' ' + item,
 				html: this.entry
@@ -1496,10 +1506,14 @@ var assets = {
 		}
 
 		x = x || -1;
-		tally = this.article.getElement('.tally'),		// “.replace(/\s/g, '')” because of Firefox
+		tally = this.article.getElement('.tally'),
+
+		// .replace(/\s/g, '') because of Firefox
+		//    beware of "g" modifier, Firefox 3.6;
+		//    http://blog.stevenlevithan.com/archives/es3-regexes-broken
+
 		num = parseInt(tally.get('text').replace(/\s/g, ''));
-														// beware of “g” modifier, Firefox 3.6;
-														//    http://blog.stevenlevithan.com/archives/es3-regexes-broken
+
 		if (!num){
 			num = 0;
 		}
@@ -1509,10 +1523,9 @@ var assets = {
 
 };
 
-														// in case of “multiple” without any client-side script handler,
-var addAssets = {										//    the value of the name property must end with “[]”;
-														//    e.g. “name=files[]”; otherwise, multiple files
-														//    won’t be recognized on server-side!
+
+var addAssets = {
+
 	initialize: function(){
 		this.label = new Element('label#add-assets', {
 			html: '\
@@ -1544,7 +1557,8 @@ var addAssets = {										//    the value of the name property must end with �
 			window.fireEvent('request');
 			window.fireEvent('addAssets.change', e.target);
 		}
-														// reset file input to allow for file re-selection
+
+		// reset file input to allow for file re-selection
 		document.getElementsByName('files')[0].value = '';
 	},
 
@@ -1602,7 +1616,8 @@ var upload = {
 		this.formName = 'publish-entry';
 		this.fd.append('from', this.formName);
 
-		if (entry.pageType === 'permalink'){			// append old entry file URI
+									// append old entry file URI
+		if (entry.pageType === 'permalink'){
 			cache = entry.cache.section.getFirst('article');
 			this.fd.append('entry', cache.getData('asset-uri')
 				+ self.location.pathname.toAssetNamePart()
@@ -1625,7 +1640,7 @@ var upload = {
 		}
 
 		if (fileArr['100'] && fileList['100'].name.isText()){
-			delete fileArr['100'];						// don’t upload text filetype entry file
+			delete fileArr['100'];	// do not upload text entry file
 		}
 
 		if ((' .' + ext).isText()){
@@ -1679,7 +1694,7 @@ var upload = {
 			filename = file.name,
 			id = filename.cutFileExt().substr(filename.lastIndexOf(' ') + 1),
 			namePart = this.namePart;
-														// try to keep asset-ID
+									// try to keep asset-ID
 		if (!filename.isAsset() | !filename.startsWith(namePart) | assetStr.indexOf('|' + id + '|') !== -1){
 			id = 1;
 
@@ -1695,8 +1710,12 @@ var upload = {
 	},
 
 	upload: function(){
-		var xhr = new XMLHttpRequest();					// function “bind” (JavaScript 1.8.5), supported since
-		xhr.onload = this.onLoad.bind(this);			//    Chrome 7, Firefox 4, IE 9, but not Safari 5 nor Opera 11 yet
+		var xhr = new XMLHttpRequest();
+
+		// function bind() (JavaScript 1.8.5); since Chrome 7,
+		//    Firefox 4, IE 9, not Safari 5 nor Opera 11 yet
+
+		xhr.onload = this.onLoad.bind(this);
 		xhr.onerror = this.onError.bind(this);
 		xhr.onabort = this.onAbort.bind(this);
 		xhr.upload.onprogress = this.onProgress;
@@ -1755,7 +1774,7 @@ var upload = {
 		this.onComplete();
 	},
 
-	onComplete: function(){								// complete, either succeeded or failed
+	onComplete: function(){			// complete, either succeeded or failed
 		this.fd = null;
 		window.fireEvent('upload.complete');
 		window.fireEvent(this.formName + '.complete');
@@ -1769,8 +1788,12 @@ var download = {
 	// @param	string
 
 	initialize: function(href){
-		var xhr = this.xhr = new XMLHttpRequest();		// function “bind” (JavaScript 1.8.5), supported since
-		xhr.onload = this.onLoad.bind(this);			//    Chrome 7, Firefox 4, IE 9, but not Safari 5 nor Opera 11 yet
+		var xhr = this.xhr = new XMLHttpRequest();
+
+		// function bind() (JavaScript 1.8.5); since Chrome 7,
+		//    Firefox 4, IE 9, not Safari 5 nor Opera 11 yet
+
+		xhr.onload = this.onLoad.bind(this);
 		xhr.onerror = this.onError.bind(this);
 		xhr.onabort = this.onAbort.bind(this);
 		xhr.onprogress = this.onProgress;
@@ -1780,11 +1803,13 @@ var download = {
 			'entry.plainText': this.start.bind(this)
 		});
 	},
-														// 0 = href 
-	start: function(){									// 1 = article element where to append progress bar
+									// 0 = href, 1 = article element
+	start: function(){				//    where to append progress bar
 		window.fireEvent('download.loadstart', [arguments[1], '(1)']);
+
+		// " + '?' + document.body.getData('mod')" to bypass cache
 		this.xhr.open('GET', arguments[0] + '?' + document.body.getData('mod'));
-		this.xhr.send();								// “ + '?' + document.body.getData('mod')” to bypass cache
+		this.xhr.send();
 	},
 
 	stop: function(){
@@ -1827,7 +1852,7 @@ var download = {
 		this.onComplete();
 	},
 
-	onComplete: function(){								// complete, either succeeded or failed
+	onComplete: function(){			// complete, either succeeded or failed
 		window.fireEvent('download.complete');
 	}
 
@@ -1851,8 +1876,8 @@ var progress = {
 			'upload.complete': this.dispose.bind(this)
 		});
 	},
-														// 0 = article element where to append it, 
-	display: function(){								// 1 = number of files that are uploading
+									// 0 = article element where to append it, 
+	display: function(){			// 1 = number of files that are uploading
 		this.span[1].set('text', arguments[1]);
 		arguments[0].appendChild(this.progress);
 	},
@@ -1931,8 +1956,11 @@ var remove = {
 		window.fireEvent('request');
 		this.fd.append('from', this.formName);
 
-		xhr.onload = this.onLoad.bind(this);			// function “bind” (JavaScript 1.8.5), supported since
-		xhr.onerror = this.onError.bind(this);			//    Chrome 7, Firefox 4, IE 9, but not Safari 5 nor Opera 11 yet
+		// function bind() (JavaScript 1.8.5); since Chrome 7,
+		//    Firefox 4, IE 9, not Safari 5 nor Opera 11 yet
+
+		xhr.onload = this.onLoad.bind(this);
+		xhr.onerror = this.onError.bind(this);
 		xhr.onabort = this.onAbort.bind(this);
 
 		xhr.open('POST', self.location.pathname);
@@ -1947,7 +1975,7 @@ var remove = {
 
 			if (	response === lang.confirm.expired
 				||	response === lang.confirm.expiredUnsaved
-			){											// doesn’t matter in this case => reload
+			){						// does not matter in this case => reload
 				alert(lang.confirm.expired);
 				self.location.href.reload();
 
@@ -1974,7 +2002,7 @@ var remove = {
 		this.onComplete();
 	},
 
-	onComplete: function(){								// complete, either succeeded or failed
+	onComplete: function(){			// complete, either succeeded or failed
 		this.fd = this.formName = this.target = this.text = null;
 		window.fireEvent('request.complete');
 	}

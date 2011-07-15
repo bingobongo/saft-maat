@@ -9,20 +9,25 @@ Class Httpdigest {
 	# Httpdigest
 	#
 	# http://en.wikipedia.org/wiki/Digest_access_authentication
-	# inspired and partially based on Paul James’
-	#		“HTTP Authentication with HTML Forms”, http://www.peej.co.uk/articles/http-auth-with-html-forms.html and
-	#		“PHP HTTP Digest”, http://www.peej.co.uk/projects/phphttpdigest.html
+	# inspired, partially based on and kudos to Paul James
+	#    HTTP Authentication with HTML Forms,
+	#        http://www.peej.co.uk/articles/http-auth-with-html-forms.html, and
+	#    PHP HTTP Digest, http://www.peej.co.uk/projects/phphttpdigest.html
 
 
 	# @param	string
 	# @param	string
-	# @return	string or integer	“0” = failed;
-	#								“3” = expired or request count mismatch (reboot);
-	#								“4” = kicked out, same user logged in with different clients simultaneously;
-	#								“5” = something else’s faulty (error, reboot);
-	#								“null” as string = logout; similar to “quit”, but without writing to any log;
-	#								“quit” as string = logout;
-	#									everything else will be just fine
+	# @return	string or integer
+	#
+	#			0 = failed;
+	#			3 = expired or request count mismatch (reboot);
+	#			4 = kicked out,
+	#			    same user logged in with different clients simultaneously;
+	#			5 = something else faulty (error, reboot);
+	#			null as string = logout; similar to "quit",
+	#			    but without writing to any log;
+	#			quit as string = logout;
+	#			everything else will be just fine
 
 	public static function authenticate(&$headerAuth, &$spell){
 
@@ -33,21 +38,26 @@ Class Httpdigest {
 			&&	preg_match('/uri="([^"]+)"/', $headerAuth, $URI)
 
 		){
+			# the author name may not have any special characters
 
 			if (preg_match('{^[\w-]+$}i', $name[1]) === 0)
-				return 0;								# the author name may not have any special characters
+				return 0;
 
 			$name = strtolower($name[1]);
 			$nonce = $nonce[1];
 			$path = Maat::$logRoot . '/' . App::$author;
 
-														# BEWARE: request count reset’s DIRTY: waive it when possible!
-														#    reset it to 0 on logout when the browser is Chrome,
-			if (	$name === 'null'					#    because Chrome will reset it after logout; though Firefox
-				xor	$name === 'quit'					#    won’t, reset it all the same, because of rare edge cases
-			){											#    (client will cable “quit” for logout, “null” for reset only)
+			# BEWARE: waive request count reset when possible!
+			#    reset it to 0 on logout when browser is Chrome, because
+			#    Chrome will reset it after logout; though Firefox will not,
+			#    reset it all the same, because of rare edge cases
+			#    (client will cable "quit" for logout, "null" for reset only)
 
-				$path.= '/' . 'auth.log';				# start request count reset …
+			if (	$name === 'null'
+				xor	$name === 'quit'
+			){								# start request count reset
+
+				$path.= '/' . 'auth.log';
 				$content = is_readable($path) === true
 					? file_get_contents($path)
 					: '';
@@ -67,10 +77,10 @@ Class Httpdigest {
 					self::__logNonce($path, $content);
 				}
 
-				return $name;								# allow to log logout, don’t log reset
+				return $name;				# allow logout log, but no reset log
 			}
-
-			if (	$name === App::$author				# make sure that the name in the header and the URI are equal
+											# make sure that name in the header
+			if (	$name === App::$author	#    and in the URI are equal
 				&&	$opaque[1] === self::__getOpaque()
 				&&	$URI[1] === $_SERVER['REQUEST_URI']
 				&&	preg_match('/qop="?([^,\s"]+)/', $headerAuth, $qualityOfProtectionCode)
@@ -83,7 +93,8 @@ Class Httpdigest {
 					. ':' . $clientNonce[1] . ':' . $qualityOfProtectionCode[1] . ':' . $a2);
 				$requestCount = hexdec($requestCount[1]);
 
-				if ($response[1] === $expectedResponse){	# start nonce log …
+											# start nonce log
+				if ($response[1] === $expectedResponse){
 					Elf::makeDirOnDemand($path, App::$perms['cache']);
 					$path.= '/' . 'auth.log';
 					$content = is_readable($path) === true
@@ -97,44 +108,66 @@ Class Httpdigest {
 					$nonceOK = $nonce === self::__getNonce();
 
 					if ($offset !== false){
-																	# new nonce always adds on top; therefore, a valid
-						if ($offset === 0){							#    nonce may be on the very first line only
+
+						# new nonce always adds on top; therefore, a valid
+						#    nonce may be on the very first line only
+
+						if ($offset === 0){
 
 							#    , nonce omitted
 							# $n = request count
-							# $c = orignal birth time of nonce (= user session start time)
+							# $c = orignal birth time of nonce
+							#      (= user session start time)
 							# $e = expiration time of nonce
 							list(, $n, $c, $e) = explode('%', substr($content, 0, strpos($content, "\n")));
-																		# make sure that the current request count is
-																		#    greater than the logged one, at least +1
-																		#    (less strict this’d be 
-							if (	1 + intval($n) <= $requestCount		#     “intval($n) < $requestCount”);
-								&&	(Maat::LIFESPAN * 8 + $c) > $time	#    session may exceed lifespan eightfold;
-								&&	$e > $time							#    after that force to log in once again
+
+							# make sure that current request count is greater
+							#    than the logged one, at least +1 (less strict
+							#    this would be "intval($n) < $requestCount");
+							#    session may exceed lifespan eightfold;
+							#    after that force to log in once again
+
+							if (	1 + intval($n) <= $requestCount
+								&&	(Maat::LIFESPAN * 8 + $c) > $time
+								&&	$e > $time
 							){
-								if ($nonceOK === true){						# update request count, extend expiry
+								# update request count, extend expiry
+
+								if ($nonceOK === true){
 									$content = $nonce . '%' . strval($requestCount) . '%' . $c
 										. '%' . ($time + Maat::LIFESPAN) . "\n"
 										. substr($content, strpos($content, "\n") + 1);
 									self::__logNonce($path, $content);
-																			# stale: client should re-send with
-																			#    new nonce provided (remember me);
-								} else										#    log that nonce with request count “0”
-									exit(self::sendAuthHeader($path, $c, $content));
-																		# authentication lifespan expired or
-							} else										#    request count mismatch occured => reboot!
-								$name = 3;
-																	# not the latest nonce,
-																	#    presumably a man-in-the-middle attack; or the
-						} else										#    user logged in simultaneously with multiple
-							$name = 4;								#    clients, ’ll kick the last one out => reboot!
 
-					} else if ($nonceOK === true){				# user probably logged in just before, log new nonce or
+								# stale: client should re-send with new nonce
+								#    provided; log that nonce with request count 0
+
+								} else
+									exit(self::sendAuthHeader($path, $c, $content));
+
+							# authentication lifespan expired or
+							#    request count mismatch occured => reboot!
+
+							} else
+								$name = 3;
+
+						# not latest nonce, presumably man-in-the-middle attack;
+						#    or user logged in simultaneously with multiple
+						#    clients, will kick the last one out => reboot!
+
+						} else
+							$name = 4;
+
+					# user probably logged in just before, log new nonce
+
+					} else if ($nonceOK === true){
 						$content = $nonce . '%' . $requestCount . '%' . $time
 							. '%' . ($time + Maat::LIFESPAN) . "\n" . $content;
 						self::__logNonce($path, $content);
 
-					} else										#    there’s simply something else’s faulty => reboot!
+					# or there is simply something else faulty => reboot!
+
+					} else
 						$name = 5;
 
 					return $name;
@@ -165,7 +198,10 @@ Class Httpdigest {
 		} else
 			$stale = '"';
 
-		Elf::sendHttpHeader(401);						# 401 aims to suppress the native http auth box of the client
+
+		# 401 aims to suppress native http auth box of the client
+
+		Elf::sendHttpHeader(401);
 		header('WWW-Authenticate: Digest realm="' . self::__getRealm()
 			. '", domain="' . App::$absolute . App::$author
 			. '/", qop=auth, algorithm=MD5, nonce="' . $nonce
@@ -176,18 +212,19 @@ Class Httpdigest {
 
 	# @return	string	generate realm
 
-	private function __getRealm(){						# kingly name of the app or similar
+	private function __getRealm(){			# kingly name of the app or similar
 		return hash('ripemd160', base64_encode('saftmaat@' . Maat::$domainID));
 	}
 
 
-	# @return	string	generate nonce hash with expiry, but expiry with timestamp is wanky and not really
-	#					doing what it should do; therefore, log nonce n’ time for checking purpose
+	# @return	string	generate nonce hash (with expiry/timestamp it
+	# 					is not good nor really doing what it should);
+	#					therefore, log nonce + time for checking purpose
 
 	private function __getNonce(){
 		return	hash_hmac('ripemd160', base64_encode(
 				  date('Y-m-d H:i:s', ceil(time()/(Maat::LIFESPAN/10)) * (Maat::LIFESPAN/10))
-				. 'I' . Maat::$client					# $time = ceil(time() / $this->nonceLife) * $this->nonceLife;
+				. 'I' . Maat::$client
 				. 'M' . $_SERVER['REMOTE_ADDR']
 				. 'P' . Maat::PRIVATE_KEY
 			), Maat::PRIVATE_KEY
@@ -198,8 +235,8 @@ Class Httpdigest {
 	# @return	string	generate an (rather) unique ID
 
 	private function __getOpaque(){
-		return	hash_hmac('ripemd160', base64_encode(Maat::$domainID
-				. Maat::$client
+		return	hash_hmac('ripemd160', base64_encode(
+				  Maat::$domainID . Maat::$client
 				. str_replace('.', '', $_SERVER['REMOTE_ADDR'])
 			), Maat::PRIVATE_KEY
 		);

@@ -13,8 +13,8 @@ Class Html extends Permalink {
 	}
 
 
-	protected function __build($lastmod){				# $lastmod is[ superfluous] used for permalink source file download
-		parent::__prepare($entry);
+	protected function __build($lastmod){	# $lastmod [ superfluous] used for
+		parent::__prepare($entry);			#    permalink source file download
 
 		$title = ucfirst(App::$author) . ': ' . array_shift($entry);
 		$descr = $entry[0] === ''

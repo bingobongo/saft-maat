@@ -26,23 +26,23 @@ Class Html extends Blues {
 	<section id=blues>';
 
 		switch (Maat::$client){
-			case 0:										# bad browser
+			case 0:							# bad browser
 				echo '
 		<p>
 			', $bash , ' <br>' , Maat::$lang['error']['browser'] , '
 	</section>';
 				break;
 
-			case 3:										# reboot
-			case 4:										# reauth
-			case 5:										# faulty
+			case 3:							# reboot
+			case 4:							# reauth
+			case 5:							# faulty
 				echo '
 		<p>
 			', $bash , ' <br>' , Maat::$lang['error']['reboot'] , ' -' , Maat::$client , '
 	</section>';
 				break;
 
-			default:									# auth
+			default:						# auth
 				echo '
 		<noscript>
 			<p>

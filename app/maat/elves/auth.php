@@ -17,11 +17,17 @@ Class Auth extends Copilot {
 		require_once('httpdigest.php');
 		$headerAuth = $this->__getHeader('Authorization');
 
-		if ($headerAuth === 0){							# missing Authorization header
+		# missing Authorization header
 
-			if (isset($_REQUEST['auth']) === true)			# check for “auth” request (JavaScript) and
-				Httpdigest::sendAuthHeader();				#    send http authentication header if not already sent or
-			else											#    output login form on first page load
+		if ($headerAuth === 0){
+
+			# check for "auth" request (JavaScript), send http authentication
+			#    header if not already sent or output login form on first load
+
+			if (isset($_REQUEST['auth']) === true)
+				Httpdigest::sendAuthHeader();
+
+			else
 				return Maat::$client = 2;
 
 			exit;
@@ -29,47 +35,75 @@ Class Auth extends Copilot {
 
 		$name = Httpdigest::authenticate($headerAuth, $spell);
 
-		if (isset($_REQUEST['auth']) === true){			# log in/out request, usually asynchronous
+		# log in/out, usually asynchronous
 
-			if ($name === 0){								# failed login: wrong credentials; log and slow down;
-				$this->__log('err.auth');					#    send Bad Request to stop client from asking for details;
-				Elf::sendHttpHeader(400);					#    let the JavaScript part on client-side work once again
+		if (isset($_REQUEST['auth']) === true){
 
-				if (strpos(Maat::$client, 'firefox') === 0)	# forces client to reset after failed login (Firefox 4)
+			# failed login: wrong credentials; log and slow down;
+			#    send Bad Request to stop client from asking for details;
+			#    let JavaScript part on client-side work once again
+
+			if ($name === 0){
+				$this->__log('err.auth');
+				Elf::sendHttpHeader(400);
+
+				# force client to reset after failed login (Firefox 4)
+
+				if (strpos(Maat::$client, 'firefox') === 0)
 					header('X-Maat-Reset: true');
 
-			} else if ($name === 'null'){					# reset: let the JavaScript part on client-side work once again
+			# reset: let the JavaScript part on client-side work once again;
+			#    slow down, feign busyness
+
+			} else if ($name === 'null'){
 				sleep(min(1, max(1, (ini_get('max_execution_time') / 2))));
-				Elf::sendHttpHeader(400);					#    slow down, feels as is a lot going on behind the curtain
+				Elf::sendHttpHeader(400);
 
-			} else if ($name === 'quit'){					# successful logout: client will cable “quit” as username
-				$this->__log('deauth');						#    (JavaScript, URI should end with former “username/”)
-				Elf::sendHttpHeader(400);					#    send Bad Request to stop client from asking for details;
-															#    let the JavaScript part on client-side work once again
+			# successful logout: client cables "quit" as username
+			#    (JavaScript, URI should end with former "username/")
+			#    send Bad Request to stop client from asking for details;
+			#    let JavaScript part on client-side work once again
 
-			} else if ($name > 2){							# reboot/reauth required
-				Elf::sendExitHeader(200, 'text/plain');		#    will indicate the required reboot on client-side
+			} else if ($name === 'quit'){
+				$this->__log('deauth');
+				Elf::sendHttpHeader(400);
+
+			# reboot/reauth required,
+			#    indicate the required reboot on client-side
+
+			} else if ($name > 2){
+				Elf::sendExitHeader(200, 'text/plain');
 				echo Maat::$lang['error']['reboot'] , ' -' , $name , '';
 
-			} else											# successful login
+			# successful login
+
+			} else
 				Elf::sendHttpHeader(200);
 
-			exit;											# stop
+			exit;								# stop
 
-		} else {										# standard requests
+		# standard requests
 
-			if (	$name === 0								# not authenticated yet, force output of
-				or	$name === 'null'						#    the login form after successful logout
+		} else {
+
+			# not authenticated yet, force output of login form after successful logout
+
+			if (	$name === 0
+				or	$name === 'null'
 				or	$name === 'quit'
 			)
 				return Maat::$client = 2;
-															# usually the authentication lifespan may have expired or
-															#    there’s a request count mismatch; or an author may have
-															#    logged in with different clients simultaneously;
-			else if ($name > 2){							#    or a man-in-the-middle attack is running; for details
-															#    dive into “/propeller/maat/elves/httpdigest.php”
 
-				if (isset($_REQUEST['entry']) === true){		# presumably the users’s authentication lifespan expired …
+			# usually the authentication lifespan may have expired or there is a
+			#    request count mismatch; or author has logged in with different
+			#    clients simultaneously; or man-in-the-middle attack running;
+			#    for details dive into /propeller/maat/elves/httpdigest.php
+
+			else if ($name > 2){
+
+				# presumably the users authentication lifespan expired
+
+				if (isset($_REQUEST['entry']) === true){
 
 					if (ob_get_length() !== false)
 						ob_clean();
@@ -84,12 +118,16 @@ Class Auth extends Copilot {
 					else
 						echo Maat::$lang['confirm']['expired'];
 
-					exit;										#    stop
+					exit;							# stop
 
-				} else											# … or simply no more signed in: reauth/reboot!
+				# or simply no more signed in: reauth/reboot!
+
+				} else
 					return Maat::$client = $name;
 
-			} else {										# begin configuration …
+			# begin configuration
+
+			} else {
 				unset($headerAuth, $name, $spell);
 				return 1;
 			}
@@ -119,8 +157,10 @@ Class Auth extends Copilot {
 	}
 
 
-	# @return	array or integer	grab response and request headers from Apache;
-	#								i.e. for “Authorization” header, if not forwarded automatically
+	# @return	array or integer
+	#
+	#			grab response and request headers from Apache;
+	#			i.e. for Authorization header, if not forwarded automatically
 
 	protected function __getHeaders(){
 
@@ -142,11 +182,15 @@ Class Auth extends Copilot {
 
 		if (strpos($str, 'err.') === 0){
 			$path = Maat::$logRoot . '/' . $str . '.log';
-														# slow down, try to protect the machine from
-			if ($str === 'err.auth')					#    brute-force-attacks, information leakage etc.
+
+			# slow down, protect from brute-force-attacks, info leakage
+
+			if ($str === 'err.auth')
 				sleep(min(3, max(3, (ini_get('max_execution_time') / 2))));
 
-		} else if ($str === 'deauth'){					# slow down, feels as is a lot going on behind the curtain
+		# slow down, feign busyness
+
+		} else if ($str === 'deauth'){
 			sleep(min(1, max(1, (ini_get('max_execution_time') / 2))));
 			$path = Maat::$logRoot . '/' . App::$author . '/' . $str . '.log';
 		}
@@ -156,7 +200,7 @@ Class Auth extends Copilot {
 
 
 	private function __getLogStr(){
-		return	date('Ymd-H.i.s O')						# cut “<!-- ” and “ -->” off
+		return	date('Ymd-H.i.s O')			# cut "<!-- " and " -->" off
 			.	' ' . substr(Elf::getSqueezedStr(), 5, -4)
 			.	' ' . $_SERVER['REMOTE_ADDR']
 			.	' ' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']

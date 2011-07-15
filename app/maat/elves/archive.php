@@ -9,47 +9,60 @@ Class Archive {
 	# Archive
 	#
 	# - official zip file format: http://www.pkware.com/appnote.txt
-	# - partially based on
+	# - partially based on, kudos to
 	#   - The Horde Project, http://horde.org
-	#     @package Horde_Compress (…framework/compress/lib/Horde/Crompress.php)
-	#   - Eric Mueller, <eric@themepark.com>, http://www.zend.com/codex.php?id=535&single=1
-	#   - Deins125, <webmaster@atlant.ru>, http://www.zend.com/codex.php?id=470&single=1
-	#   - patch from Peter Listiak <mlady@users.sourceforge.net> for last modified date and time of shrinked file
+	#     @package Horde_Compress (framework/compress/lib/Horde/Crompress.php)
+	#   - Eric Mueller, <eric@themepark.com>,
+	#        http://www.zend.com/codex.php?id=535&single=1
+	#   - Deins125, <webmaster@atlant.ru>,
+	#        http://www.zend.com/codex.php?id=470&single=1
+	#   - patch from Peter Listiak <mlady@users.sourceforge.net>
+	#        for last modified date and time of shrinked file
 	#
 	# - example usage:
 	#   --------------
-	#   require_once($path_to_dir_where_this_class_resides_in . '/archive.php');
+	#   require_once($path_to_dir_where_this_class_resides_in.'/archive.php');
 	#   $zip = new Archive([, $dir_path_from_where_we_grab_the_data]);
-	#   $zip->add($dir_or_file_path_that_is_child_of_dir_path_from_where_we_grab_the_data);
-	#   $zip->saveAs($path_to_where_the_temporary_zip_archive_file_is_saved);
-	#   $zip->download($path_of_temporary_archive_or_else_file_if_wanted,
-	#      $desired_zip_archive_name_on_client_machine[, “1” will delete file on server when finished, “0” not]);
+	#   $zip->add($dir_or_file_path_that_is_child_of_dir_from_where_we_grab);
+	#   $zip->saveAs($path_to_where_temporary_zip_archive_is_saved);
+	#   $zip->download($path_of_temporary_archive_or_else_file,
+	#        $desired_zip_archive_name_on_client_machine
+	#        [, 1 = will delete file on server when finished, 0 = not]);
 
 
-	const DATA_TOP_STR     = "\x50\x4b\x03\x04",		# zip header (start string of file content)
-		  DIR_TOP_STR      = "\x50\x4b\x01\x02",		# zip header (start string of central directory record)
-		  DATA_DIR_TOP_STR = "\x14\x00\x00\x00\x08\x00";# “\x14\x00” = version required for extraction
-														# “\x00\x00” = general purpose bit flag
-														# “\x08\x00” = compression method
+	const
+		# zip header (start string of file content)
+		DATA_TOP_STR = "\x50\x4b\x03\x04",
 
-	public static $potPath,								# current pot path
-				  $data,								# compiled archive data
-				  $dirs = array(),						# compiled directory structure (central directory record)
-				  $offset = 0;							# offset location
+		# zip header (start string of central directory record)
+		DIR_TOP_STR = "\x50\x4b\x01\x02",
 
+		# "\x14\x00" = version required for extraction
+		# "\x00\x00" = general purpose bit flag
+		# "\x08\x00" = compression method
+		DATA_DIR_TOP_STR = "\x14\x00\x00\x00\x08\x00";
 
-	# @param	string or integer	(current) directory from where this instance may grab data;
-	#									neglectable for flat archives!
+	public static
+		$potPath,							# current pot path
+		$data,								# compiled archive data
+		$dirs = array(),					# compiled directory structure
+		$offset = 0;						#    (central directory record)
+											# offset location
+
+	# @param	string or integer
+	#			(current) directory from where this instance
+	#			may grab data; negligible for flat archives
 
 	public function __construct($potPath = 0){
-		self::$potPath = $potPath;						# 1048576 = 1024 * 1024 = 1 megabyte
+		self::$potPath = $potPath;			# 1048576 = 1024 * 1024 = 1 megabyte
 		self::$data = fopen('php://temp/maxmemory:1048576', 'r+');
 	}
 
 
 	# @param	string
-	# @param	integer	“1” = addition to the archive root;
-	#					“0” = not (allows deep archive structure, but each directory must be added separately)
+	# @param	integer	1 = addition to the archive root;
+	#					0 = not (allows deep archive structure,
+	#					    but each directory must be added separately)
 
 	public static function add($itemPath, $flat = 0){
 		$hextime = dechex(self::__unixToDosTime(filemtime($itemPath)));
@@ -61,9 +74,10 @@ Class Archive {
 		$name = (self::$potPath === 0 or $flat === 1)
 			? basename($itemPath)
 			: substr($itemPath, strlen(self::$potPath) + 1);
-														# determine filetype (16 = directory, 32 = file), names;
-		if (is_dir($itemPath) === true){				#    whereat directory names must end with a slash
-			$type = 16;
+											# determine filetype
+											#    (16 = directory, 32 = file),
+		if (is_dir($itemPath) === true){	#    names; whereat directory names
+			$type = 16;						#    must end with a slash
 
 			if (substr($itemPath, -1) !== '/')
 				$name.= '/';
@@ -75,68 +89,69 @@ Class Archive {
 
 		# local file header segments
 		$uncLen = strlen($data);
-		$crc = crc32($data);
-		$gzData = substr(gzcompress($data), 2, -4);		# gzip data, use substr to fix a crc bug
+		$crc = crc32($data);				# gzip data, substr to fix crc bug
+		$gzData = substr(gzcompress($data), 2, -4);
 
 		# common data for the both entries
 		$common = self::DATA_DIR_TOP_STR
-				. $hextime								# last modification time and date
-				. pack('V', $crc)						# crc32 information (compression)
-				. pack('V', strlen($gzData))			# compressed filesize
-				. pack('V', $uncLen)					# uncompressed filesize
-				. pack('v', strlen($name))				# length of filename
-				. pack('v', 0);							# extra field length
+				. $hextime					# last modification time and date
+				. pack('V', $crc)			# crc32 information (compression)
+				. pack('V', strlen($gzData))# compressed filesize
+				. pack('V', $uncLen)		# uncompressed filesize
+				. pack('v', strlen($name))	# length of filename
+				. pack('v', 0);				# extra field length
 
 		# add to archive data
 		fseek(self::$data, 0, SEEK_END);
 		$oldOffset = ftell(self::$data);
 
 		fwrite(self::$data,
-			   self::DATA_TOP_STR						# begin creating zip data
-			 . $common									# common data
-			 . $name									# filename
-			 . $gzData									# compressed data (“file data” segment)
-		);
+			   self::DATA_TOP_STR			# begin creating zip data
+			 . $common						# common data
+			 . $name						# filename
+			 . $gzData						# compressed data
+		);									#     ("file data" segment)
 
 		# add to central directory record
 		self::$dirs[] = self::DIR_TOP_STR
-					  . "\x00\x00"						# version made by
-					  . $common							# common data
-					#  end “local file header” ---------- begin “data descriptor” ----<
-					  . pack('v', 0)					# file comment length
-					  . pack('v', 0)					# disk number start
-					  . pack('v', 0)					# internal file attribute
-					  . pack('V', $type)				# external file attribute type (“archive” bit set)
-					  . pack('V', $oldOffset)			# relative offset of local  header
-					  . $name;							# filename
+					  . "\x00\x00"			# version made by
+					  . $common				# common data
+					# end "local file header" ---- begin "data descriptor" ---<
+					  . pack('v', 0)		# file comment length
+					  . pack('v', 0)		# disk number start
+					  . pack('v', 0)		# internal file attribute
+					  . pack('V', $type)	# external file attribute type
+											#    ("archive" bit set)
+					  . pack('V',$oldOffset)# relative offset of local  header
+					  . $name;				# filename
 	}
 
 
-	# @param	string
-
-	public static function saveAs($tmpnamePath){		# write compressed data to file, save it on server, close “php://temp”
+	# @param	string						# write compressed data to file on
+											#    server, close "php://temp"
+	public static function saveAs($tmpnamePath){
 		$dir = implode('', self::$dirs);
 		$dirLen = sizeof(self::$dirs);
 		
 		fseek(self::$data, 0, SEEK_END);
 		$offset = ftell(self::$data);
 
-		fwrite(self::$data,
-			   $dir										# central directory data
-			 . "\x50\x4b\x05\x06\x00\x00\x00\x00"		# end string of directory data (eof central directory)
-			 . pack('v', $dirLen)						# total number of entries “on disk”
-			 . pack('v', $dirLen)						# total number of entries in file (overall)
-			 . pack('V', strlen($dir))					# size of central directroy
-			 . pack('V', strlen($offset))				# offset to start of central directory
-			 . "\x00\x00"								# zip file comment length
+		fwrite(self::$data,					# $dir = central directory data
+			   $dir							# end string (eof) central directory
+			 . "\x50\x4b\x05\x06\x00\x00\x00\x00"
+			 . pack('v', $dirLen)			# total number of entries "on disk"
+			 . pack('v', $dirLen)			# and the same in file (overall)
+			 . pack('V', strlen($dir))		# size of central directroy
+			 . pack('V', strlen($offset))	# offset to start of central dir
+			 . "\x00\x00"					# zip file comment length
 		);
 
 		fseek(self::$data, 0, SEEK_END);
 		$offset = ftell(self::$data);
-		rewind(self::$data);
-
-		$len = 0;										# in respect of speed it’s quite the same as fopen,
-		while ($offset !== $len)						#    fwrite, fclose with “$len = ftell()” inside a loop
+		rewind(self::$data);				# in respect of speed it is quite
+											#    the same as fopen, fwrite,
+		$len = 0;							#    fclose with "$len = ftell()"
+		while ($offset !== $len)			#    inside a loop
 			$len += file_put_contents($tmpnamePath, stream_get_contents(self::$data, 1024 * 8), FILE_APPEND);
 
 		fclose(self::$data);
@@ -173,8 +188,8 @@ Class Archive {
 
 	# @param	string
 	# @param	string
-	# @param	integer	“1” = will delete file on server when finished;
-	#					“0” = not
+	# @param	integer	1 = will delete file on server when finished;
+	#					0 = not
 
 	public static function download($tmpnamePath, $zipname, $unlink = 0){
 		if (ini_get('zlib.output_compression'))
