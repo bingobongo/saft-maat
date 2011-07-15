@@ -5,11 +5,12 @@ namespace Saft;
 
 Class Client {
 
-	public static $engine,
-				  $httpUserAgent,
-				  $name,
-				  $platform,
-				  $version;
+	public static
+		$engine,
+		$httpUserAgent,
+		$name,
+		$platform,
+		$version;
 
 
 	public function __construct(){
@@ -17,8 +18,9 @@ Class Client {
 	}
 
 
-	# @param	array	“browsername” => “version” where version is a float
-	#						e.g. “array('chrome' => 5.0, 'firefox' => 3.6, 'safari' => 4)”;
+	# @param	array	"browsername" => "version"
+	#					 where version is a float,
+	#					 e.g. array('chrome' => 5, 'firefox' => 3.6)
 	# @return	string or integer
 
 	public static function browser($arr = null){
@@ -36,7 +38,7 @@ Class Client {
 	}
 
 
-	# @param	string	e.g. “array('linux', 'mac')”
+	# @param	string	e.g. array('linux', 'mac')
 	# @return	string or integer
 
 	public static function platform($arr = null){
@@ -56,77 +58,79 @@ Class Client {
 
 	private function __getClient(){
 		$ua = self::$httpUserAgent;
-		$g = 'gecko';									# gecko engine, i.e. Firefox, Camino (mozilla browser)
-		$p = 'presto';									# presto engine, i.e. Opera
-		$t = 'trident';									# trident engine, i.e. Internet Explorer
-		$w = 'webkit';									# webkit engine, i.e. Safari, Google Chrome, Konquerer
-		$c = 'chrome';
-		$f = 'firefox';
-		$k = 'konqueror';
-		$o = 'opera';
-		$s = 'safari';
-		$ie = 'ie';
 
-		if (strpos($ua, 'apple' . $w .'/') !== false){	# webkit
-			self::$engine = $w;
+		if (	preg_match('{opera|webtv}i', $ua) !== 1
+			&&	preg_match('{msie\s([\d\.]+)}', $ua, $arr) === 1
+		){
+			self::$engine = 'trident';
+			self::$name = 'ie';
+			self::$version = floatval($arr[1]);
 
-			if (strpos($ua, $k) !== false)					# konqueror
-				self::$name = $k;
+		} else if (strpos($ua, 'konquerer/') !== false){
+			self::$engine = 'webkit';
+			self::$name = 'konquerer';
+			self::$version = self::__getVersion('konquerer/');
 
-			else if (strpos($ua, 'iron') !== false)			# srware iron
+		} else if (strpos($ua, 'applewebkit/') !== false){
+			self::$engine = 'webkit';
+
+			if (strpos($ua, 'iron/') !== false){
 				self::$name = 'iron';
+				self::$version = self::__getVersion('iron/');
 
-			else if (strpos($ua, $c . '/') !== false){		# chrome
-				self::$name = $c;
-				self::$version = self::__getVersion($c . '/');
+			} else if (strpos($ua, 'flock/') !== false){
+				self::$name = 'flock';		# newer => WebKit
+				self::$version = self::__getVersion('flock/');
 
-			} else if (strpos($ua, $s . '/') !== false){	# safari
+			} else if (strpos($ua, 'fluid/') !== false){
+				self::$name = 'fluid';
+				self::$version = self::__getVersion('fluid/');
+
+			} else if (strpos($ua, 'omniweb/') !== false){
+				self::$name = 'omniweb';
+				self::$version = self::__getVersion('omniweb/');
+
+			} else if (strpos($ua, 'shiira/') !== false){
+				self::$name = 'shiira';
+				self::$version = self::__getVersion('shiira/');
+
+			} else if (	strpos($ua, 'chrome/') !== false
+					&&	strpos($ua, 'version/') === false
+			){								# wanna Chrome, not Safari
+				self::$name = 'chrome';
+				self::$version = self::__getVersion('chrome/');
+
+			} else if (strpos($ua, 'safari/') !== false){
 				self::$name = $s;
 				self::$version = self::__getVersion('version/');
-
-			} else {
-				self::$name =
-				self::$version = null;
 			}
 
-		} else if (strpos($ua, $g .'/') !== false){		# gecko
-			self::$engine = $g;
+		} else if (strpos($ua, 'gecko/') !== false){
+			self::$engine = 'gecko';
 
-			if (strpos($ua, $f . '/') !== false){			# firefox
-				self::$name = $f;
-				self::$version = self::__getVersion($f . '/');
+			if (strpos($ua, 'flock/') !== false){
+				self::$name = 'flock';		# older => Gecko
+				self::$version = self::__getVersion('flock/');
 
-			} else {
-				self::$name =
-				self::$version = null;
+			} else if (strpos($ua, 'firefox/') !== false){
+				self::$name = 'firefox';
+				self::$version = self::__getVersion('firefox/');
+
+			} else if (strpos($ua, 'camino/') !== false){
+				self::$name = 'camino';
+				self::$version = self::__getVersion('camino/');
 			}
 
-		} else if (strpos($ua, $p .'/') !== false){		# presto
-			self::$engine = $p;
+		} else if (strpos($ua, 'presto/') !== false){
+			self::$engine = 'presto';
 
-			if (strpos($ua, $o . '/') !== false){			# opera
-				self::$name = $o;
-				self::$version = self::__getVersion('version/');
-
-			} else {
-				self::$name =
-				self::$version = null;
+			if (strpos($ua, 'opera/') !== false){
+				self::$name = 'opera';
+				self::$version = self::__getVersion('opera/');
 			}
-
-		} else if (										# trident
-				preg_match('{opera|webtv}i', $ua) !== 1
-			&&	preg_match('{msie\s(\d)}', $ua, $arr) === 1
-		){
-			self::$name = $ie;								# internet explorer
-			self::$version = intval(substr($arr[1] . '000', 0, 4));
-
-		} else {
-			self::$engine =
-			self::$name =
-			self::$version = null;
 		}
 
-		unset($ua, $g, $p, $t, $w, $c, $f, $k, $o, $s, $ie);
+		unset($arr, $ua);
 	}
 
 
@@ -141,35 +145,40 @@ Class Client {
 	private function __getPlatform(){
 		$ua = self::$httpUserAgent;
 
-		if (		strpos($ua, 'j2me') !== false)
+		if (	strpos($ua, 'j2me') !== false
+			||	strpos($ua, 'mini/') !== false
+			||	strpos($ua, 'mobi/') !== false
+			||	strpos($ua, 'mobile') !== false
+		)
 			self::$platform = 'mobile';
 
-		else if (	strpos($ua, 'iphone') !== false
-				||	strpos($ua, 'ipod') !== false
-		)
-			self::$platform = 'pod';
+		else if (strpos($ua, 'ipad') !== false)
+			self::$platform = 'ipad';
+
+		else if (strpos($ua, 'iphone') !== false)
+			self::$platform = 'iphone';
+
+		else if (strpos($ua, 'ipod') !== false)
+			self::$platform = 'ipod';
 
 		else if (	strpos($ua, 'mac') !== false
 				||	strpos($ua, 'darwin') !== false
 		)
 			self::$platform = 'mac';
 
-		else if (	strpos($ua, 'webtv') !== false)
+		else if (strpos($ua, 'webtv') !== false)
 			self::$platform = 'webtv';
 
-		else if (	strpos($ua, 'win') !== false)
+		else if (strpos($ua, 'win') !== false)
 			self::$platform = 'win';
 
-		else if (	strpos($ua, 'freebsd') !== false)
+		else if (strpos($ua, 'freebsd') !== false)
 			self::$platform = 'freebsd';
 
 		else if (	strpos($ua, 'x11') !== false
 				||	strpos($ua, 'linux') !== false
 		)
 			self::$platform = 'linux';
-
-		else
-			self::$platform = null;
 
 		unset($ua);
 	}
