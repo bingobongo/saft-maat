@@ -48,7 +48,7 @@ Package Overview
 Installation
 ------------
 
-Maat requires [Saft](https://github.com/bingobongo/saft/).
+Maat requires [Saft](https://github.com/bingobongo/saft).
 
 1. Configure the file `/app/maat/app.php`. Instructions on configuration are found inside it.
 2. Turn on the debug mode of the corresponding Saft installation. Move `/app/maat` and `/asset/maat` to `/app` and `/asset` of the corresponding Saft installation.
