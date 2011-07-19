@@ -14,7 +14,6 @@ Class Copilot extends Pilot {
 
 	private function __check(){
 		$this->__lang();
-
 		require_once('client.php');
 		$client = new Client();
 		Maat::$client = $client->browser(array('chrome' => 9.0, 'firefox' => 4.0));
@@ -24,7 +23,7 @@ Class Copilot extends Pilot {
 			$this->__initialize('blues', 'app/maat/');
 
 		if (($spell = $this->__maatDecoded()) === 0)
-			Elf::sendExit(500, 'Automatically shut down due to the misconfiguration of the “' . ucfirst(App::$author) . '”.');
+			throw new Fruit('Automatically shut down due to the misconfiguration of the “' . ucfirst(App::$author) . '”. Make sure that the configuration file of <i>' . ucfirst(App::$author) . '<i> is error free.', 500);
 
 		if ($this->__auth($spell) !== 1)
 			$this->__initialize('blues', 'app/maat/');
@@ -50,7 +49,7 @@ Class Copilot extends Pilot {
 			if (is_readable($path . ($lang = App::LANG . '.json')) === false){
 
 				if (is_readable($path . ($lang = 'en.json')) === false)
-					Elf::sendExit(500, 'Automatically shut down due to a non-existent translation.');
+					throw new Fruit('Automatically shut down due to a non-existent translation. It could not even be found the default translation file.', 500);
 			}
 		}
 
@@ -70,7 +69,6 @@ Class Copilot extends Pilot {
 			Maat::$authorPot = empty($conf['content_pot']) === false
 				? trim($conf['content_pot'], ' /')
 				: App::$author;
-
 			Elf::makeDirOnDemand(App::$potRoot . '/' . Maat::$authorPot, App::$perms['asset']);
 			Elf::makeDirOnDemand(Maat::$root . '/log', App::$perms['cache']);
 			Elf::makeDirOnDemand(Maat::$logRoot, App::$perms['cache']);
@@ -89,18 +87,13 @@ Class Copilot extends Pilot {
 	# @param	integer
 
 	protected function __setRoute(&$params, &$page, &$rw, &$size){
-
 		switch ($page){
 			case null:
-
 				# html root (page 1)
-
 				$this->__initialize('index');
 				break;
-
 			default:
-
-				if ($this->__filterRoute($params, $page, $rw, $size) === 0)
+				if ($this->__filter($params, $page, $rw, $size) === 0)
 					break;
 
 				unset($page, $params, $rw, $size);
@@ -109,8 +102,7 @@ Class Copilot extends Pilot {
 		}
 
 		# 404 not found
-
-		Elf::sendExit(404, 'The requested URL ' . $_SERVER['REQUEST_URI'] . ' was not found on this server.');
+		throw new Fruit('', 404);
 	}
 
 
@@ -124,18 +116,16 @@ Class Copilot extends Pilot {
 
 			# bit higher memory peak than sizeof-while-round-next-key
 			#    (grows with array size, negligible here)
-
 			foreach ($assets as $name){
 				$n = strrpos($name, ' ') +1;
-				$n = substr($name, $n);		# without file extension this would be
-											# substr($name,$n,strrpos($name,'.')-$n)
+				# without file extension this would be substr($name,$n,strrpos($name,'.')-$n)
+				$n = substr($name, $n);
 				$str.= $str === ''
 					? ' data-asset=' . $n
 					: '|' . $n;
 			}
 
 			unset($assets, $n, $name);
-
 			return $str;
 		}
 
