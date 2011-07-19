@@ -16,7 +16,8 @@ Class Env_Maat extends Env {
 			'non' => array()
 		);
 		$this->__checkPerms();
-		$this->__checkPermsMaat();			# after checkPerms!
+		# must come after __checkPerms
+		$this->__checkPermsMaat();
 		$this->__buildPermsMsg();
 	}
 
@@ -29,7 +30,6 @@ Class Env_Maat extends Env {
 		$permsCache = $perms['cache'];
 
 		# app
-
 		$this->__isSecure($root . '/app/maat');
 		$arr = $this->__rglob($root . '/app/maat', '/*', '/{*.json,*.php,*.txt}');
 
@@ -39,9 +39,7 @@ Class Env_Maat extends Env {
 		foreach ($arr['files'] as $path)
 			$this->__isSecure($path);
 
-
 		# asset
-
 		$this->__isSecure($root . '/asset/maat', $permsAsset);
 		$arr = $this->__rglob($root . '/asset/maat', '/*', '/{*.css,*.js,*.manifest,*.woff,*.xsl}');
 
@@ -51,9 +49,7 @@ Class Env_Maat extends Env {
 		foreach ($arr['files'] as $path)
 			$this->__isSecure($path, $permsAssetParts, 0644);
 
-
 		# cache
-
 		Elf::makeDirOnDemand($root . '/cache/maat', $permsCache);
 		$this->__isSecure($root . '/cache/maat', $permsCache);
 		$arr = $this->__rglob($root . '/cache/maat', '/*', '/{*.html,*.json,*.xml}');
@@ -64,9 +60,7 @@ Class Env_Maat extends Env {
 		foreach ($arr['files'] as $path)
 			$this->__isSecure($path, $permsAssetParts, 0644);
 
-
 		# log
-
 		$arr = array(
 			'/log',
 			'/log/maat',

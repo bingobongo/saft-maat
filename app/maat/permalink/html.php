@@ -13,14 +13,14 @@ Class Html extends Permalink {
 	}
 
 
-	protected function __build($lastmod){	# $lastmod [ superfluous] used for
-		parent::__prepare($entry);			#    permalink source file download
+	protected function __build($lastmod){
+		# $lastmod [ superfluous] used for permalink source file download
+		parent::__prepare($entry);
 
 		$title = ucfirst(App::$author) . ': ' . array_shift($entry);
 		$descr = $entry[0] === ''
 			? array_shift($entry)
 			: "\n\t<meta content='" . array_shift($entry) . '\' name=description>';
-
 		$entry = implode($entry);
 
 		echo '<!doctype html>
@@ -39,10 +39,8 @@ Class Html extends Permalink {
 		</article>
 		<hr>
 	</section>';
-
 		$nav = new Mav();
 		unset($nav);
-
 		echo '
 	<script>
 		var	conf = {
@@ -85,7 +83,6 @@ Class Html extends Permalink {
 	<script src=' , Elf::smartAssetURI('mootools-more.js', 'maat') , '></script>
 	<script src=' , Elf::smartAssetURI('standard.js', 'maat') , '></script>
 	<script src=' , Elf::smartAssetURI('auth.js', 'maat') , '></script>';
-
 		unset($descr, $entry, $title);
 	}
 

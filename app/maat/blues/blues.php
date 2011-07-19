@@ -10,12 +10,11 @@ Class Blues {
 	}
 
 
-	protected function __blues(){			# $cachename superfluous for blues;
+	protected function __blues(){
+		# $cachename superfluous for blues; therefore, NOT standard header!
 		Pilot::getContentType($contentType, $cachename);
-											#    therefore, NOT standard header!
 		Elf::sendExitHeader(200, $contentType);
 		$this->__build();
-
 		unset($cachename, $contentType);
 
 		if (	App::CHRONO === 1

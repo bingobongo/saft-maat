@@ -14,7 +14,6 @@ Class Httpdigest {
 	#        http://www.peej.co.uk/articles/http-auth-with-html-forms.html, and
 	#    PHP HTTP Digest, http://www.peej.co.uk/projects/phphttpdigest.html
 
-
 	# @param	string
 	# @param	string
 	# @return	string or integer
@@ -39,7 +38,6 @@ Class Httpdigest {
 
 		){
 			# the author name may not have any special characters
-
 			if (preg_match('{^[\w-]+$}i', $name[1]) === 0)
 				return 0;
 
@@ -52,16 +50,14 @@ Class Httpdigest {
 			#    Chrome will reset it after logout; though Firefox will not,
 			#    reset it all the same, because of rare edge cases
 			#    (client will cable "quit" for logout, "null" for reset only)
-
 			if (	$name === 'null'
 				xor	$name === 'quit'
-			){								# start request count reset
-
+			){
+				# start request count reset
 				$path.= '/' . 'auth.log';
 				$content = is_readable($path) === true
 					? file_get_contents($path)
 					: '';
-
 				clearstatcache();
 
 				$line = substr($content, 0, strpos($content, "\n"));
@@ -77,10 +73,12 @@ Class Httpdigest {
 					self::__logNonce($path, $content);
 				}
 
-				return $name;				# allow logout log, but no reset log
+				# allow logout log, but no reset log
+				return $name;
 			}
-											# make sure that name in the header
-			if (	$name === App::$author	#    and in the URI are equal
+
+			# make sure that the name in the header and in the URI are equal, etc.
+			if (	$name === App::$author
 				&&	$opaque[1] === self::__getOpaque()
 				&&	$URI[1] === $_SERVER['REQUEST_URI']
 				&&	preg_match('/qop="?([^,\s"]+)/', $headerAuth, $qualityOfProtectionCode)
@@ -93,14 +91,13 @@ Class Httpdigest {
 					. ':' . $clientNonce[1] . ':' . $qualityOfProtectionCode[1] . ':' . $a2);
 				$requestCount = hexdec($requestCount[1]);
 
-											# start nonce log
+				# start nonce log
 				if ($response[1] === $expectedResponse){
 					Elf::makeDirOnDemand($path, App::$perms['cache']);
 					$path.= '/' . 'auth.log';
 					$content = is_readable($path) === true
 						? file_get_contents($path)
 						: '';
-
 					clearstatcache();
 
 					$offset = strpos($content, $nonce);
@@ -111,7 +108,6 @@ Class Httpdigest {
 
 						# new nonce always adds on top; therefore, a valid
 						#    nonce may be on the very first line only
-
 						if ($offset === 0){
 
 							#    , nonce omitted
@@ -132,7 +128,6 @@ Class Httpdigest {
 								&&	$e > $time
 							){
 								# update request count, extend expiry
-
 								if ($nonceOK === true){
 									$content = $nonce . '%' . strval($requestCount) . '%' . $c
 										. '%' . ($time + Maat::LIFESPAN) . "\n"
@@ -141,32 +136,27 @@ Class Httpdigest {
 
 								# stale: client should re-send with new nonce
 								#    provided; log that nonce with request count 0
-
 								} else
 									exit(self::sendAuthHeader($path, $c, $content));
 
 							# authentication lifespan expired or
 							#    request count mismatch occured => reboot!
-
 							} else
 								$name = 3;
 
 						# not latest nonce, presumably man-in-the-middle attack;
 						#    or user logged in simultaneously with multiple
 						#    clients, will kick the last one out => reboot!
-
 						} else
 							$name = 4;
 
 					# user probably logged in just before, log new nonce
-
 					} else if ($nonceOK === true){
 						$content = $nonce . '%' . $requestCount . '%' . $time
 							. '%' . ($time + Maat::LIFESPAN) . "\n" . $content;
 						self::__logNonce($path, $content);
 
 					# or there is simply something else faulty => reboot!
-
 					} else
 						$name = 5;
 
@@ -200,7 +190,6 @@ Class Httpdigest {
 
 
 		# 401 aims to suppress native http auth box of the client
-
 		Elf::sendHttpHeader(401);
 		header('WWW-Authenticate: Digest realm="' . self::__getRealm()
 			. '", domain="' . App::$absolute . App::$author
@@ -212,7 +201,8 @@ Class Httpdigest {
 
 	# @return	string	generate realm
 
-	private function __getRealm(){			# kingly name of the app or similar
+	private function __getRealm(){
+		# kingly name of the app or similar
 		return hash('ripemd160', base64_encode('saftmaat@' . Maat::$domainID));
 	}
 

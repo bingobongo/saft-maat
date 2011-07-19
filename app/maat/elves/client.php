@@ -19,8 +19,8 @@ Class Client {
 
 
 	# @param	array	"browsername" => "version"
-	#					 where version is a float,
-	#					 e.g. array('chrome' => 5, 'firefox' => 3.6)
+	#			where version is a float, e.g.
+	#			array('chrome' => 5, 'firefox' => 3.6)
 	# @return	string or integer
 
 	public static function browser($arr = null){
@@ -77,9 +77,9 @@ Class Client {
 			if (strpos($ua, 'iron/') !== false){
 				self::$name = 'iron';
 				self::$version = self::__getVersion('iron/');
-
+			# newer Flock => WebKit
 			} else if (strpos($ua, 'flock/') !== false){
-				self::$name = 'flock';		# newer => WebKit
+				self::$name = 'flock';
 				self::$version = self::__getVersion('flock/');
 
 			} else if (strpos($ua, 'fluid/') !== false){
@@ -93,10 +93,10 @@ Class Client {
 			} else if (strpos($ua, 'shiira/') !== false){
 				self::$name = 'shiira';
 				self::$version = self::__getVersion('shiira/');
-
+			# wanna Chrome, not Safari; therefore, 'version/'
 			} else if (	strpos($ua, 'chrome/') !== false
 					&&	strpos($ua, 'version/') === false
-			){								# wanna Chrome, not Safari
+			){
 				self::$name = 'chrome';
 				self::$version = self::__getVersion('chrome/');
 
@@ -107,9 +107,9 @@ Class Client {
 
 		} else if (strpos($ua, 'gecko/') !== false){
 			self::$engine = 'gecko';
-
+			# older Flock => Gecko
 			if (strpos($ua, 'flock/') !== false){
-				self::$name = 'flock';		# older => Gecko
+				self::$name = 'flock';
 				self::$version = self::__getVersion('flock/');
 
 			} else if (strpos($ua, 'firefox/') !== false){

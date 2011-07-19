@@ -24,19 +24,15 @@ Class Mav extends Nav {
 	protected function __buildNav(){
 		$class = Pilot::$pageType;
 		$this->__getPrevNextURI($prev, $next);
-
 		$prev = $prev !== 0
 			? ' data-prev=' . $prev
 			: '';
 		$next = $next !== 0
 			? ' data-next=' . $next
 			: '';
-
 		$str = (	$class !== 'index'
 				or	(	$class === 'index'
-					&&	(	(	App::POT_FILTER === 1
-							&&	Pilot::$contentPot !== 0
-							)
+					&&	(	Pilot::$contentPot !== 0
 						or	Pilot::$page > 1
 						or	Pilot::$month !== 0
 						or	Pilot::$year !== 0

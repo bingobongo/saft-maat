@@ -39,15 +39,16 @@ Class Maat extends App {
 		}
 
 		if ($this->__extend() !== 0){
-			self::$propelRoot = __DIR__;	# point to maat
+			# point to maat
+			self::$propelRoot = __DIR__;
 			self::$assetRoot = $appRoot . '/asset/maat';
 			self::$cacheRoot = $appRoot . '/cache/maat';
 			self::$logRoot = $appRoot . '/log/maat';
 			self::$baseURI = trim(App::$absolute, '/') . '/maat/' . App::$author . '/';
 			self::$baseURL = 'http://' . $_SERVER['HTTP_HOST'] . App::$absolute . 'maat/' . App::$author . '/';
-			self::$today = 99999999;		# let scheduled entries list
+			# let scheduled entries list
+			self::$today = 99999999;
 			self::$domainID = Elf::getDomainID();
-
 			require_once('elves/copilot.php');
 			require_once('elves/auth.php');
 			new Auth();

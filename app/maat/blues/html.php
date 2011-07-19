@@ -12,12 +12,12 @@ Class Html extends Blues {
 
 	protected function __build(){
 		$bash = 'maat:~ ' . App::$author . '$ ';
-
 		echo '<!doctype html>
 <html dir=ltr lang=' , Maat::$lang['code'] , ' id=' , Maat::$domainID , '>
 <head>
 	<meta charset=utf-8>
 	<title>' , ucfirst(App::$author) , '</title>
+	<meta name=robots content=noarchive>
 	<link href=' , App::$absolute , 'favicon.ico rel=\'shortcut icon\'>
 	<link href=' , App::$absolute , 'apple-touch-icon.png rel=apple-touch-icon>
 	<link href=' , Elf::smartAssetURI('standard.css', 'maat') , ' rel=stylesheet>
@@ -26,23 +26,21 @@ Class Html extends Blues {
 	<section id=blues>';
 
 		switch (Maat::$client){
-			case 0:							# bad browser
+			case 0:		# bad browser
 				echo '
 		<p>
 			', $bash , ' <br>' , Maat::$lang['error']['browser'] , '
 	</section>';
 				break;
-
-			case 3:							# reboot
-			case 4:							# reauth
-			case 5:							# faulty
+			case 3:		# reboot
+			case 4:		# reauth
+			case 5:		# faulty
 				echo '
 		<p>
 			', $bash , ' <br>' , Maat::$lang['error']['reboot'] , ' -' , Maat::$client , '
 	</section>';
 				break;
-
-			default:						# auth
+			default:	# auth
 				echo '
 		<noscript>
 			<p>

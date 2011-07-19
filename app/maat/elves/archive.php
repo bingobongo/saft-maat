@@ -29,32 +29,32 @@ Class Archive {
 	#        $desired_zip_archive_name_on_client_machine
 	#        [, 1 = will delete file on server when finished, 0 = not]);
 
-
 	const
 		# zip header (start string of file content)
 		DATA_TOP_STR = "\x50\x4b\x03\x04",
-
 		# zip header (start string of central directory record)
 		DIR_TOP_STR = "\x50\x4b\x01\x02",
-
 		# "\x14\x00" = version required for extraction
 		# "\x00\x00" = general purpose bit flag
 		# "\x08\x00" = compression method
 		DATA_DIR_TOP_STR = "\x14\x00\x00\x00\x08\x00";
 
+	# current pot path, compiled archive data, compiled directory
+	#    structure (central directory record) and offset location
 	public static
-		$potPath,							# current pot path
-		$data,								# compiled archive data
-		$dirs = array(),					# compiled directory structure
-		$offset = 0;						#    (central directory record)
-											# offset location
+		$potPath,
+		$data,
+		$dirs = array(),
+		$offset = 0;
+
 
 	# @param	string or integer
 	#			(current) directory from where this instance
 	#			may grab data; negligible for flat archives
 
 	public function __construct($potPath = 0){
-		self::$potPath = $potPath;			# 1048576 = 1024 * 1024 = 1 megabyte
+		self::$potPath = $potPath;
+		# 1048576 = 1024 * 1024 = 1 megabyte
 		self::$data = fopen('php://temp/maxmemory:1048576', 'r+');
 	}
 
@@ -74,10 +74,11 @@ Class Archive {
 		$name = (self::$potPath === 0 or $flat === 1)
 			? basename($itemPath)
 			: substr($itemPath, strlen(self::$potPath) + 1);
-											# determine filetype
-											#    (16 = directory, 32 = file),
-		if (is_dir($itemPath) === true){	#    names; whereat directory names
-			$type = 16;						#    must end with a slash
+
+		# determine filetype (16 = directory, 32 = file),
+		#    names; whereat directory names must end with a slash
+		if (is_dir($itemPath) === true){
+			$type = 16;
 
 			if (substr($itemPath, -1) !== '/')
 				$name.= '/';
@@ -89,7 +90,8 @@ Class Archive {
 
 		# local file header segments
 		$uncLen = strlen($data);
-		$crc = crc32($data);				# gzip data, substr to fix crc bug
+		$crc = crc32($data);
+		# gzip data, substr to fix crc bug
 		$gzData = substr(gzcompress($data), 2, -4);
 
 		# common data for the both entries
@@ -116,7 +118,7 @@ Class Archive {
 		self::$dirs[] = self::DIR_TOP_STR
 					  . "\x00\x00"			# version made by
 					  . $common				# common data
-					# end "local file header" ---- begin "data descriptor" ---<
+			# end "local file header" ------- begin "data descriptor" ---<
 					  . pack('v', 0)		# file comment length
 					  . pack('v', 0)		# disk number start
 					  . pack('v', 0)		# internal file attribute
@@ -127,8 +129,10 @@ Class Archive {
 	}
 
 
-	# @param	string						# write compressed data to file on
-											#    server, close "php://temp"
+	# @param	string
+	#
+	# write compressed data to file on server, close "php://temp"
+
 	public static function saveAs($tmpnamePath){
 		$dir = implode('', self::$dirs);
 		$dirLen = sizeof(self::$dirs);
@@ -148,10 +152,11 @@ Class Archive {
 
 		fseek(self::$data, 0, SEEK_END);
 		$offset = ftell(self::$data);
-		rewind(self::$data);				# in respect of speed it is quite
-											#    the same as fopen, fwrite,
-		$len = 0;							#    fclose with "$len = ftell()"
-		while ($offset !== $len)			#    inside a loop
+		rewind(self::$data);
+		# in respect of speed it is quite the same as fopen,
+		#    fwrite, fclose with "$len = ftell()" inside a loop
+		$len = 0;
+		while ($offset !== $len)
 			$len += file_put_contents($tmpnamePath, stream_get_contents(self::$data, 1024 * 8), FILE_APPEND);
 
 		fclose(self::$data);
@@ -208,7 +213,6 @@ Class Archive {
 		header('Content-Transfer-Encoding: binary');
 		header('Content-Length: ' . filesize($tmpnamePath));
 		header('Connection: close');
-
 		$zip = fopen($tmpnamePath, 'rb');
 
 		if ($zip){

@@ -9,10 +9,10 @@ Class Html extends Index {
 		parent::__construct();
 	}
 
-											# $lastmod superfluous for indexes
-	protected function __build(&$entries, $lastmod){
-		$title = ucfirst(App::$author) . ': ' . htmlspecialchars(App::TITLE, ENT_QUOTES, 'utf-8', false);
 
+	protected function __build(&$entries, $lastmod){
+		# $lastmod superfluous for indexes
+		$title = ucfirst(App::$author) . ': ' . htmlspecialchars(App::TITLE, ENT_QUOTES, 'utf-8', false);
 		echo '<!doctype html>
 <html dir=ltr lang=' , Maat::$lang['code'] , ' id=' , Maat::$domainID , '>
 <head>
@@ -27,7 +27,6 @@ Class Html extends Index {
 
 		# bit lower memory peak than "foreach (array_keys() as $path){"
 		#    (gains with array size)
-
 		if (empty($entries) === false){
 			$size = sizeof($entries) + 1;
 			$r = 0;
@@ -45,7 +44,6 @@ Class Html extends Index {
 				$assetSize = $dataAssetStr === ''
 					? '<span class=tally> + 0</span>'
 					: '<span class=tally> + ' . strval(substr_count($dataAssetStr, '|') + 1) . '</span>';
-
 				echo '
 		<article' , $dataStr , $dataAssetStr , intval(basename($entryPath)) > $realToday ? ' class=scheduled' : '' , '>
 			<a href=/' ,  Elf::entryPathToURLi($entryPath, true) , '><span class=turn></span>' , Elf::avoidWidow(Elf::getEntryTitle($entryPath)) , '<span class=remove> ✖</span>' , $assetSize , '</a> 
@@ -58,12 +56,9 @@ Class Html extends Index {
 		echo '
 		<hr>
 	</section>';
-
 		unset($entries, $title);
-
 		$nav = new Mav();
 		unset($nav);
-
 		echo '
 	<script>
 		var	conf = {
@@ -129,7 +124,6 @@ Class Html extends Index {
 			}ix'
 		);
 		$assets = array_reverse($assets);
-
 		return Copilot::toDataAssetStr($assets);
 	}
 
