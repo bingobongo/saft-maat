@@ -483,7 +483,7 @@ var	keyboard = {
 
 	redirect: function(el){
 
-		if (!el || !el.href){
+		if (!el || !el.href || el.href.startsWith('javascript:void')){
 			return null;
 		}
 
